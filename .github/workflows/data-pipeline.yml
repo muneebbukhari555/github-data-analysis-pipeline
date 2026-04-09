@@ -19,7 +19,7 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install pandas matplotlib requests
+        run: pip install pandas matplotlib requests pymongo
 
       - name: Run script
         env:

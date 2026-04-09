@@ -1,9 +1,9 @@
 name,stars,forks,issues,language,created_at,updated_at,contributors,recent_commits
-kubernetes/kubernetes,121396,42745,2641,Go,2014-06-06T22:56:04Z,2026-03-27T14:48:55Z,30,30
-pytorch/pytorch,98619,27319,18134,Python,2016-08-13T05:26:41Z,2026-03-27T15:15:41Z,30,30
-ansible/ansible,68392,24167,804,Python,2012-03-06T14:58:02Z,2026-03-27T12:36:20Z,30,30
-scikit-learn/scikit-learn,65543,26855,2150,Python,2010-08-17T09:43:38Z,2026-03-27T14:46:20Z,30,30
-tensorflow/tensorflow,194363,75254,4033,C++,2015-11-07T01:19:20Z,2026-03-27T15:03:29Z,30,30
-apache/spark,43052,29138,301,Scala,2014-02-25T08:00:08Z,2026-03-27T13:23:40Z,30,30
-docker/compose,37214,5761,85,Go,2013-12-09T11:40:58Z,2026-03-27T15:02:33Z,30,30
-prometheus/prometheus,63311,10272,761,Go,2012-11-24T11:14:12Z,2026-03-27T15:11:59Z,30,30
+kubernetes/kubernetes,0,0,0,,,,3,3
+pytorch/pytorch,0,0,0,,,,3,3
+ansible/ansible,0,0,0,,,,3,3
+scikit-learn/scikit-learn,0,0,0,,,,3,3
+tensorflow/tensorflow,0,0,0,,,,3,3
+apache/spark,0,0,0,,,,3,3
+docker/compose,0,0,0,,,,3,3
+prometheus/prometheus,0,0,0,,,,3,3
