@@ -2,6 +2,8 @@ import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+from datetime import datetime
+from db import insert_data
 
 TOKEN = os.getenv("GIT_TOKEN")
 headers = {
@@ -57,34 +59,13 @@ for repo in repos:
     except:
         print(f"Error processing {repo}")
 
+for record in dataset:
+    record["timestamp"] = datetime.utcnow()   
+
 df = pd.DataFrame(dataset)
-df.head()
 df.to_csv("github_data.csv", index=False)
+
+insert_data(dataset)
+print("Data stored in MongoDB")
+
 print(df.head())
-
-df["created_at"] = pd.to_datetime(df["created_at"], utc=True)
-df["updated_at"] = pd.to_datetime(df["updated_at"], utc=True)
-# Use UTC time
-df["age_days"] = (pd.Timestamp.now(tz="UTC") - df["created_at"]).dt.days
-# Handle missing language
-df["language"] = df["language"].fillna("Unknown")
-
-print(df.describe())
-print(df["language"].value_counts())
-
-df["stars_per_day"] = df["stars"] / df["age_days"]
-df["forks_per_star"] = df["forks"] / df["stars"]
-df["contributors_per_star"] = df["contributors"] / df["stars"]
-
-df.sort_values("stars", ascending=False)[["name", "stars"]]
-
-### Scenario:1 Popularity Visualization
-df["stars"].plot(kind="bar", title="Stars per Repository")
-plt.show()
-
-# Scatter plot
-plt.scatter(df["forks"], df["stars"])
-plt.xlabel("Forks")
-plt.ylabel("Stars")
-plt.title("Forks vs Stars")
-plt.show()
