@@ -1,9 +1,9 @@
-name,stars,forks,issues,language,created_at,updated_at,contributors,recent_commits
-kubernetes/kubernetes,0,0,0,,,,3,3
-pytorch/pytorch,0,0,0,,,,3,3
-ansible/ansible,0,0,0,,,,3,3
-scikit-learn/scikit-learn,0,0,0,,,,3,3
-tensorflow/tensorflow,0,0,0,,,,3,3
-apache/spark,0,0,0,,,,3,3
-docker/compose,0,0,0,,,,3,3
-prometheus/prometheus,0,0,0,,,,3,3
+name,stars,forks,issues,language,created_at,updated_at,contributors,recent_commits,timestamp
+kubernetes/kubernetes,121653,42819,2724,Go,2014-06-06T22:56:04Z,2026-04-09T23:35:50Z,100,100,2026-04-09 23:44:15.349541
+pytorch/pytorch,98981,27449,18258,Python,2016-08-13T05:26:41Z,2026-04-09T23:40:03Z,100,100,2026-04-09 23:44:15.349554
+ansible/ansible,68406,24161,790,Python,2012-03-06T14:58:02Z,2026-04-09T23:23:02Z,100,100,2026-04-09 23:44:15.349556
+scikit-learn/scikit-learn,65745,26919,2047,Python,2010-08-17T09:43:38Z,2026-04-09T23:41:58Z,100,100,2026-04-09 23:44:15.349558
+tensorflow/tensorflow,194612,75262,4277,C++,2015-11-07T01:19:20Z,2026-04-09T23:24:32Z,100,100,2026-04-09 23:44:15.349560
+apache/spark,43103,29152,334,Scala,2014-02-25T08:00:08Z,2026-04-09T23:30:28Z,100,100,2026-04-09 23:44:15.349561
+docker/compose,37247,5768,90,Go,2013-12-09T11:40:58Z,2026-04-09T23:35:35Z,100,100,2026-04-09 23:44:15.349563
+prometheus/prometheus,63515,10316,760,Go,2012-11-24T11:14:12Z,2026-04-09T23:37:13Z,100,100,2026-04-09 23:44:15.349564

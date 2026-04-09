@@ -28,12 +28,12 @@ def fetch_repo_data(repo):
     return response.json()
     
 def fetch_contributors(repo):
-    url = f"https://api.github.com/repos/{repo}/contributors"
+    url = f"https://api.github.com/repos/{repo}/contributors?per_page=100"
     response = requests.get(url, headers=headers)
     return len(response.json())
 
 def fetch_commits(repo):
-    url = f"https://api.github.com/repos/{repo}/commits"
+    url = f"https://api.github.com/repos/{repo}/commits?per_page=100"
     response = requests.get(url, headers=headers)
     return len(response.json())
 

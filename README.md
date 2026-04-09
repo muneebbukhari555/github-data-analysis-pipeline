@@ -22,7 +22,7 @@ activity, and trends.
 
 -   Python
 -   Pandas
--   Matplotlib
+-   MongoDB
 -   GitHub API
 
 ## Project files
