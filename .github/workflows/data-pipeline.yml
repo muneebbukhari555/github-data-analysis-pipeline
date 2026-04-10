@@ -24,4 +24,5 @@ jobs:
       - name: Run script
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: python main.py
