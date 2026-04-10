@@ -16,8 +16,32 @@ print(df.head())
 df["created_at"] = pd.to_datetime(df["created_at"], utc=True)
 df["updated_at"] = pd.to_datetime(df["updated_at"], utc=True)
 df["age_days"] = (pd.Timestamp.now(tz="UTC") - df["created_at"]).dt.days
-
 df["stars_per_day"] = df["stars"] / df["age_days"].replace(0, 1)
+
+# Extract Features from Contributor and Commit Lists
+df["contributors"] = df["contributors"].apply(lambda x: x if isinstance(x, list) else [])
+df["recent_commits"] = df["recent_commits"].apply(lambda x: x if isinstance(x, list) else [])
+
+df["contributors_count"] = df["contributors"].apply(len)
+df["total_contributions"] = df["contributors"].apply(
+    lambda x: sum(c.get("contributions", 0) for c in x)
+)
+
+df["commit_count"] = df["recent_commits"].apply(len)
+def extract_commit_dates(commits):
+    dates = []
+    for c in commits:
+        try:
+            dates.append(c["commit"]["author"]["date"])
+        except:
+            continue
+    return dates
+df["commit_dates"] = df["recent_commits"].apply(extract_commit_dates)
+
+print(df["contributors_count"])
+print(df["total_contributions"])
+print(df["commit_count"])
+print(df["commit_dates"])
 
 # Repository Growth Rate
 top_growth = df.sort_values("stars_per_day", ascending=False)
