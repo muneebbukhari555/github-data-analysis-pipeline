@@ -30,12 +30,19 @@ def fetch_repo_data(repo):
 def fetch_contributors(repo):
     url = f"https://api.github.com/repos/{repo}/contributors?per_page=100"
     response = requests.get(url, headers=headers)
-    return len(response.json())
+    return response.json()
+    return [
+        {
+            "login": c.get("login"),
+            "contributions": c.get("contributions")
+        }
+        for c in data[:10]
+    ]
 
 def fetch_commits(repo):
     url = f"https://api.github.com/repos/{repo}/commits?per_page=100"
     response = requests.get(url, headers=headers)
-    return len(response.json())
+    return response.json()[:20]
 
 def process_repo(repo):
     data = fetch_repo_data(repo)
