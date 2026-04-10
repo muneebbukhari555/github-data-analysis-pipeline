@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from db import insert_data
 
-TOKEN = os.getenv("GIT_TOKEN")
+TOKEN = os.getenv("GITHUB_TOKEN")
 headers = {
     "Authorization": f"Bearer {TOKEN}"
 }
