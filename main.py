@@ -39,10 +39,25 @@ def fetch_contributors(repo):
         for c in data[:10]
     ]
 
+# def fetch_commits(repo):
+#     url = f"https://api.github.com/repos/{repo}/commits?per_page=100"
+#     response = requests.get(url, headers=headers)
+#     return response.json()[:20]
+
 def fetch_commits(repo):
-    url = f"https://api.github.com/repos/{repo}/commits?per_page=100"
-    response = requests.get(url, headers=headers)
-    return response.json()[:20]
+    commits = []
+    page = 1
+    while True:
+        url = f"https://api.github.com/repos/{repo}/commits?per_page=100&page={page}"
+        r = requests.get(url, headers=headers)
+        data = r.json()
+        if not data or "message" in data:
+            break
+        commits.extend(data)
+        if len(data) < 100:
+            break
+        page += 1
+    return commits
 
 def process_repo(repo):
     data = fetch_repo_data(repo)
