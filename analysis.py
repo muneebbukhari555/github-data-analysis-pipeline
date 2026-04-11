@@ -1,5 +1,6 @@
 from db import get_collection
 import pandas as pd
+from collections import Counter
 
 def load_data():
     collection = get_collection()
@@ -82,3 +83,12 @@ print(lang)
 # commit frequency
 print("\nCommit Frequency Leaders:")
 print(df.sort_values("commit_frequency", ascending=False)[["name", "commit_frequency"]])
+
+# most successful repositories
+print("\nTop Successful Repositories:")
+print(df.sort_values("success_score", ascending=False)[["name", "success_score"]])
+
+# strongest communities
+print("\nStrongest Communities:")
+print(df.sort_values("contributors_count", ascending=False)[["name", "contributors_count"]])
+
