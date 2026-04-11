@@ -27,18 +27,31 @@ def fetch_repo_data(repo):
     response = requests.get(url, headers=headers)
     return response.json()
     
-def fetch_contributors(repo):
-    url = f"https://api.github.com/repos/{repo}/contributors?per_page=100"
-    response = requests.get(url, headers=headers)
-    return response.json()
-    return [
-        {
-            "login": c.get("login"),
-            "contributions": c.get("contributions")
-        }
-        for c in data[:10]
+# def fetch_contributors(repo):
+#     url = f"https://api.github.com/repos/{repo}/contributors?per_page=100"
+#     response = requests.get(url, headers=headers)
+#     return response.json()
+#     return [
+#         {
+#             "login": c.get("login"),
+#             "contributions": c.get("contributions")
+#         }
+#         for c in data[:10]
     ]
-
+def fetch_contributors(repo):
+    contributors = []
+    page = 1
+    while True:
+        url = f"https://api.github.com/repos/{repo}/contributors?per_page=100&page={page}"
+        r = requests.get(url, headers=headers)
+        data = r.json()
+        if not data or "message" in data:
+            break
+        contributors.extend(data)
+        if len(data) < 100:
+            break
+        page += 1
+    return contributors
 # def fetch_commits(repo):
 #     url = f"https://api.github.com/repos/{repo}/commits?per_page=100"
 #     response = requests.get(url, headers=headers)
