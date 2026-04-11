@@ -10,7 +10,7 @@ def load_data():
 df = load_data()
 
 print("Data loaded from MongoDB")
-print(df.head())
+# print(df.head())
 
 # Feature Engineering
 df["created_at"] = pd.to_datetime(df["created_at"], utc=True)
@@ -38,10 +38,23 @@ def extract_commit_dates(commits):
     return dates
 df["commit_dates"] = df["recent_commits"].apply(extract_commit_dates)
 
-print(df["contributors_count"])
-print(df["total_contributions"])
-print(df["commit_count"])
-print(df["commit_dates"])
+# print(df["contributors_count"])
+# print(df["total_contributions"])
+# print(df["commit_count"])
+# print(df["commit_dates"])
+
+df["activity_score"] = (
+    df["commit_count"] * 0.4 +
+    df["contributors_count"] * 0.3 +
+    df["issues"] * 0.3
+)
+df["success_score"] = (
+    df["stars"] * 0.5 +
+    df["forks"] * 0.3 +
+    df["contributors_count"] * 0.2
+)
+df["engagement_ratio"] = df["forks"] / df["stars"].replace(0,1)
+df["contribution_efficiency"] = df["total_contributions"] / df["contributors_count"].replace(0,1)
 
 # Repository Growth Rate
 top_growth = df.sort_values("stars_per_day", ascending=False)
@@ -53,4 +66,3 @@ df["language"] = df["language"].fillna("Unknown")
 lang = df.groupby("language")["stars"].mean().sort_values(ascending=False)
 print("Average Stars per Language:")
 print(lang)
-
