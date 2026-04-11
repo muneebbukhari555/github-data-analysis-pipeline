@@ -92,3 +92,16 @@ print(df.sort_values("success_score", ascending=False)[["name", "success_score"]
 print("\nStrongest Communities:")
 print(df.sort_values("contributors_count", ascending=False)[["name", "contributors_count"]])
 
+# top contributors accross all repos
+all_users = []
+for repo in df["contributors"]:
+    for c in repo:
+        all_users.append(c.get("login"))
+top_users = Counter(all_users).most_common(10)
+print("\nTop Contributors Across Repositories:")
+print(top_users)
+
+# repository stability
+df["stability_score"] = df["stars"] / df["issues"].replace(0,1)
+print("\nMost Stable Repositories:")
+print(df.sort_values("stability_score", ascending=False)[["name", "stability_score"]])
