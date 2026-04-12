@@ -1,6 +1,5 @@
 import requests
 import pandas as pd
-import matplotlib.pyplot as plt
 import os
 from datetime import datetime
 from db import insert_data
@@ -27,54 +26,48 @@ def fetch_repo_data(repo):
     response = requests.get(url, headers=headers)
     return response.json()
     
-# def fetch_contributors(repo):
-#     url = f"https://api.github.com/repos/{repo}/contributors?per_page=100"
-#     response = requests.get(url, headers=headers)
-#     return response.json()
-#     return [
-#         {
-#             "login": c.get("login"),
-#             "contributions": c.get("contributions")
-#         }
-#         for c in data[:10]
-    ]
-def fetch_contributors(repo):
+def fetch_contributors(repo, max_pages=3):
     contributors = []
     page = 1
-    while True:
+    while page <= max_pages:
         url = f"https://api.github.com/repos/{repo}/contributors?per_page=100&page={page}"
-        r = requests.get(url, headers=headers)
-        data = r.json()
-        if not data or "message" in data:
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code != 200:
+            break
+        data = response.json()
+        if not data or isinstance(data, dict):
             break
         contributors.extend(data)
         if len(data) < 100:
             break
         page += 1
     return contributors
-# def fetch_commits(repo):
-#     url = f"https://api.github.com/repos/{repo}/commits?per_page=100"
-#     response = requests.get(url, headers=headers)
-#     return response.json()[:20]
 
-def fetch_commits(repo):
+def fetch_commits(repo, max_pages=5):  # LIMIT added
     commits = []
     page = 1
-    while True:
+    while page <= max_pages:
         url = f"https://api.github.com/repos/{repo}/commits?per_page=100&page={page}"
-        r = requests.get(url, headers=headers)
-        data = r.json()
-        if not data or "message" in data:
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            if response.status_code == 403:
+                print("Rate limit hit. Sleeping...")
+                time.sleep(60)
+                continue
+            data = response.json()
+            if not data or isinstance(data, dict):
+                break
+            commits.extend(data)
+            if len(data) < 100:
+                break
+            page += 1
+        except requests.exceptions.RequestException as e:
+            print("Request failed:", e)
             break
-        commits.extend(data)
-        if len(data) < 100:
-            break
-        page += 1
     return commits
 
 def process_repo(repo):
     data = fetch_repo_data(repo)
-
     return {
         "name": repo,
         "stars": data.get("stargazers_count", 0),
@@ -87,7 +80,6 @@ def process_repo(repo):
         "recent_commits": fetch_commits(repo)
     }
 
-#### Data Processing 
 for repo in repos:
     try:
         dataset.append(process_repo(repo))
