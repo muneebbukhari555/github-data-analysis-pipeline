@@ -50,5 +50,22 @@ def main():
         logger.error("Pipeline failed: %s", str(e), exc_info=True)
         sys.exit(1)
 
+def _print_summary(results: dict, logger):
+    "Print a summary of the analysis results to console."
+    df = results.get("df")
+    if df is None:
+        return
+    logger.info("\n" + "=" * 60)
+    logger.info("ANALYSIS SUMMARY")
+    logger.info("=" * 60)
+
+    # Score summary
+    score_summary = results.get("score_summary")
+    if score_summary is not None and not score_summary.empty:
+        logger.info("\nRepository Scores (ranked by overall):")
+        print(score_summary.to_string(index=False))
+
+    logger.info("\n" + "=" * 60)
+    
 if __name__ == "__main__":
     main()

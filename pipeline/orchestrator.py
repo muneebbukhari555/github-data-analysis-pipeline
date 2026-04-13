@@ -8,6 +8,7 @@ from collectors.commit_collector import CommitCollector
 from collectors.contributor_collector import ContributorCollector
 from database.repository_store import RepositoryStore
 from database.snapshot_store import SnapshotStore
+from analysis.feature_engineering import FeatureEngineer
 
 class PipelineOrchestrator:
     def __init__(self, settings: Optional[Settings] = None):
@@ -54,3 +55,27 @@ class PipelineOrchestrator:
         self.repo_store.insert_many(dataset)
         self.snapshot_store.save_snapshot(dataset)
         self.logger.info("Storage complete")
+    
+    def run_analysis(self) -> Dict[str, Any]:
+        self.logger.info("Starting analysis pipeline")
+        # Load latest data from MongoDB
+        raw_data = self.repo_store.find_latest_snapshot()
+        if not raw_data:
+            self.logger.error("No data in MongoDB. Run collection first.")
+            return {}
+        df = pd.DataFrame(raw_data)
+        self.logger.info("Loaded %d repositories from MongoDB", len(df))
+
+        # Feature Engineering
+        df = self.feature_engineer.engineer_features(df)
+
+        # Multi dimensional Scoring
+        df = self.scorer.compute_all_scores(df)
+
+        results = {
+            "df": df,
+            "score_summary": score_summary,
+        }
+
+        self.logger.info("Analysis pipeline complete")
+        return results
