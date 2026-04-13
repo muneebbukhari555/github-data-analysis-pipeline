@@ -7,7 +7,6 @@ def load_data():
     data = list(collection.find({}, {"_id": 0}))
     return pd.DataFrame(data)
 
-
 df = load_data()
 
 print("Data loaded from MongoDB")
