@@ -14,20 +14,12 @@ print("Data loaded from MongoDB")
 
 
 #### Repo Analysis
-# repository growth rate
-top_growth = df.sort_values("stars_per_day", ascending=False)
-print("Top Growing Repositories:")
-print(top_growth[["name", "stars_per_day"]])
 
 # language analysis
 df["language"] = df["language"].fillna("Unknown")
 lang = df.groupby("language")["stars"].mean().sort_values(ascending=False)
 print("Average Stars per Language:")
 print(lang)
-
-# most successful repositories
-print("\nTop Successful Repositories:")
-print(df.sort_values("success_score", ascending=False)[["name", "success_score"]])
 
 # strongest communities
 print("\nStrongest Communities:")

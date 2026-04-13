@@ -71,23 +71,53 @@ class RepositoryScorer:
         df[score_name] = (score * 100).round(2)
         return df
     
-    def compute_repo_score(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _compute_overall_score(self, df: pd.DataFrame) -> pd.DataFrame:
+        #Compute weighted overall score from dimension scores.
         df = df.copy()
-        overall_score = pd.Series(0.0, index=df.index)
+        overall = pd.Series(0.0, index=df.index)
 
-        for dimension, weight in self.OVERALL_WEIGHTS.items():
-            if dimension in df.columns:
-                overall_score += df[dimension] * weight
-            else:
-                self.logger.warning("Missing dimension '%s' for overall score", dimension)
-
-        df["overall_score"] = overall_score.round(2)
-        df["success_score"] = (
-            df["stars"] * 0.5 +
-            df["forks"] * 0.3 +
-            df["contributors_count"] * 0.2
-        )
-        df["engagement_ratio"] = df["forks"] / df["stars"].replace(0,1)
-        df["contribution_efficiency"] = df["total_contributions"] / df["contributors_count"].replace(0,1)
+        for score_col, weight in self.OVERALL_WEIGHTS.items():
+            if score_col in df.columns:
+                overall += df[score_col] * weight
+        df["overall_score"] = overall.round(2)
         return df
+
+    def _assign_ranks(self, df: pd.DataFrame) -> pd.DataFrame:
+        #Assign rank positions for each scoring dimension.
+        df = df.copy()
+        score_cols = [
+            "activity_score", "success_score",
+            "developer_influence_score", "community_strength_score",
+            "overall_score"
+        ]
+        for col in score_cols:
+            if col in df.columns:
+                df[f"{col}_rank"] = df[col].rank(ascending=False, method="min").astype(int)
+        return df
+
+    def get_score_summary(self, df: pd.DataFrame) -> pd.DataFrame:
+        #Generate a concise summary table of all scores and ranks.
+        score_cols = [
+            "name", "overall_score", "activity_score", "success_score",
+            "developer_influence_score", "community_strength_score",
+            "overall_score_rank"
+        ]
+        available = [c for c in score_cols if c in df.columns]
+        return df[available].sort_values("overall_score", ascending=False)
+
+    def get_dimension_leaders(self, df: pd.DataFrame) -> Dict[str, str]:
+        #Identify the top repository in each scoring dimension
+        dimensions = {
+            "Activity": "activity_score",
+            "Success": "success_score",
+            "Developer Influence": "developer_influence_score",
+            "Community Strength": "community_strength_score",
+            "Overall": "overall_score",
+        }
+        leaders = {}
+        for dim_name, col in dimensions.items():
+            if col in df.columns:
+                idx = df[col].idxmax()
+                leaders[dim_name] = df.loc[idx, "name"]
+        return leaders
     

@@ -23,6 +23,9 @@ class PipelineOrchestrator:
         self.repo_store = RepositoryStore(self.settings)
         self.snapshot_store = SnapshotStore(self.settings)
         self.feature_engineer = FeatureEngineer(self.settings)
+        self.feature_engineer = FeatureEngineer(self.settings)
+        self.scorer = RepositoryScorer(self.settings)
+        self.time_series_analyzer = TimeSeriesAnalyzer(self.settings)
       
     def run_collection(self, repos: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         target_repos = repos or self.settings.target_repos
@@ -75,17 +78,25 @@ class PipelineOrchestrator:
         # Multi dimensional Scoring
         df = self.scorer.compute_all_scores(df)
 
-        # Stage 5a: Time-Series Analysis
+        # Time-Series Analysis
         commit_timeline = self.time_series_analyzer.analyze_commit_timeline(df)
         df = self.time_series_analyzer.compute_commit_velocity(df)
 
-        # Stage 5b: Contributor Analysis
+        # Contributor Analysis
         top_contributors = self.contributor_analyzer.analyze_top_contributors(df)
         top_committers = self.contributor_analyzer.analyze_top_committers(df)
         influence_scores = self.contributor_analyzer.compute_developer_influence_scores(df)
 
+        # Historical Trends (from snapshots)
+        snapshots = self.snapshot_store.get_all_history()
+        trends = self.time_series_analyzer.analyze_snapshot_trends(snapshots)
+
         # Score summary and leaders
         score_summary = self.scorer.get_score_summary(df)
+        dimension_leaders = self.scorer.get_dimension_leaders(df)
+
+        # Activity heatmap data
+        heatmap_data = self.time_series_analyzer.get_activity_heatmap_data(df)
         
         results = {
             "df": df,
@@ -95,6 +106,8 @@ class PipelineOrchestrator:
             "top_contributors": top_contributors,
             "top_committers": top_committers,
             "developer_influence": influence_scores,
+            "historical_trends": trends,
+            "heatmap_data": heatmap_data,
         }
         self.logger.info("Analysis pipeline complete")
         return results
