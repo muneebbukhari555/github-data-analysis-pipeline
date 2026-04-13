@@ -72,10 +72,12 @@ class PipelineOrchestrator:
         # Multi dimensional Scoring
         df = self.scorer.compute_all_scores(df)
 
+        # Score summary and leaders
+        score_summary = self.scorer.get_score_summary(df)
+        
         results = {
             "df": df,
             "score_summary": score_summary,
         }
-
         self.logger.info("Analysis pipeline complete")
         return results
