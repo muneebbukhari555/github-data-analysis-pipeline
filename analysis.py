@@ -13,47 +13,11 @@ print("Data loaded from MongoDB")
 # print(df.head())
 
 
-#### Repo Analysis
-
-# language analysis
-df["language"] = df["language"].fillna("Unknown")
-lang = df.groupby("language")["stars"].mean().sort_values(ascending=False)
-print("Average Stars per Language:")
-print(lang)
-
-# strongest communities
-print("\nStrongest Communities:")
-print(df.sort_values("contributors_count", ascending=False)[["name", "contributors_count"]])
-
-# top contributors accross all repos
-all_users = []
-for repo in df["contributors"]:
-    for c in repo:
-        all_users.append(c.get("login"))
-top_users = Counter(all_users).most_common(10)
-print("\nTop Contributors Across Repositories:")
-print(top_users)
-
 # repository stability
 df["stability_score"] = df["stars"] / df["issues"].replace(0,1)
 print("\nMost Stable Repositories:")
 print(df.sort_values("stability_score", ascending=False)[["name", "stability_score"]])
 
-###############################################
-#extract commit authors
-from collections import Counter
-all_commit_users = []
-for commits in df["recent_commits"]:
-    for c in commits:
-        try:
-            user = c["author"]["login"]
-            if user:
-                all_commit_users.append(user)
-        except:
-            continue
-top_committers = Counter(all_commit_users).most_common(10)
-print("\nTop Committers Across Repositories:")
-print(top_committers)
 
 
 # Most Dominant Contributor Per Repo

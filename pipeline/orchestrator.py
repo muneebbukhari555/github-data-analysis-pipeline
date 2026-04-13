@@ -11,6 +11,7 @@ from database.snapshot_store import SnapshotStore
 from analysis.feature_engineering import FeatureEngineer
 from analysis.scoring import RepositoryScorer
 from analysis.time_series import TimeSeriesAnalyzer
+from analysis.contributor_analysis import ContributorAnalyzer
 
 class PipelineOrchestrator:
     def __init__(self, settings: Optional[Settings] = None):
@@ -26,6 +27,7 @@ class PipelineOrchestrator:
         self.feature_engineer = FeatureEngineer(self.settings)
         self.scorer = RepositoryScorer(self.settings)
         self.time_series_analyzer = TimeSeriesAnalyzer(self.settings)
+        self.contributor_analyzer = ContributorAnalyzer(self.settings)
       
     def run_collection(self, repos: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         target_repos = repos or self.settings.target_repos
@@ -85,6 +87,8 @@ class PipelineOrchestrator:
         # Contributor Analysis
         top_contributors = self.contributor_analyzer.analyze_top_contributors(df)
         top_committers = self.contributor_analyzer.analyze_top_committers(df)
+        cross_repo = self.contributor_analyzer.analyze_cross_repo_contributors(df)
+        dominance = self.contributor_analyzer.compute_contributor_dominance(df)
         influence_scores = self.contributor_analyzer.compute_developer_influence_scores(df)
 
         # Historical Trends (from snapshots)
@@ -105,6 +109,8 @@ class PipelineOrchestrator:
             "commit_timeline": commit_timeline,
             "top_contributors": top_contributors,
             "top_committers": top_committers,
+            "cross_repo_contributors": cross_repo,
+            "contributor_dominance": dominance,
             "developer_influence": influence_scores,
             "historical_trends": trends,
             "heatmap_data": heatmap_data,
