@@ -4,7 +4,7 @@ from datetime import datetime
 
 @dataclass
 class RepositoryModel:
-    "Represents a GitHub repository with its core metadata."
+    #Represents a GitHub repository with its core metadata.
     name: str
     stars: int = 0
     forks: int = 0
@@ -46,7 +46,7 @@ class RepositoryModel:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        "Convert model to dictionary for MongoDB storage."
+        #Convert model to dictionary for MongoDB storage.
         result = asdict(self)
         if self.timestamp:
             result["timestamp"] = self.timestamp
@@ -54,7 +54,7 @@ class RepositoryModel:
 
     @property
     def age_days(self) -> int:
-        "Calculate repository age in days from creation date."
+        #Calculate repository age in days from creation date.
         if not self.created_at:
             return 0
         try:
@@ -66,7 +66,7 @@ class RepositoryModel:
 
     @property
     def stars_per_day(self) -> float:
-        "Derived metric: average stars gained per day since creation."
+        #Derived metric: average stars gained per day since creation.
         age = self.age_days
         return self.stars / age if age > 0 else 0.0
 

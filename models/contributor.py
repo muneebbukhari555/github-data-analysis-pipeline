@@ -3,7 +3,7 @@ from typing import Dict, Any, List, Optional
 
 @dataclass
 class ContributorModel:
-    "Represents a GitHub contributor with their activity metadata."
+    #Represents a GitHub contributor with their activity metadata.
     login: str
     contributions: int = 0
     avatar_url: Optional[str] = None
@@ -23,7 +23,7 @@ class ContributorModel:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        "Convert to dictionary for storage."
+        #Convert to dictionary for storage.
         return asdict(self)
 
     @staticmethod

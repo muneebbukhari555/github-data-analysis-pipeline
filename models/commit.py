@@ -5,7 +5,7 @@ from datetime import datetime
 
 @dataclass
 class CommitModel:
-    "Represents a single Git commit with extracted metadata."
+    #Represents a single Git commit with extracted metadata.
     sha: str
     message: str = ""
     author_name: Optional[str] = None
@@ -30,7 +30,7 @@ class CommitModel:
         )
     @property
     def parsed_date(self) -> Optional[datetime]:
-        "Parse the commit date string into a datetime object."
+        #Parse the commit date string into a datetime object.
         if not self.date:
             return None
         try:
@@ -39,12 +39,12 @@ class CommitModel:
             return None
 
     def to_dict(self) -> Dict[str, Any]:
-        "Convert to dictionary for storage."
+        #Convert to dictionary for storage.
         return asdict(self)
 
     @staticmethod
     def extract_commit_list(raw_commits: List[Dict]) -> List["CommitModel"]:
-        "Bulk extraction: convert raw API commit dicts into CommitModel instances."
+        #Bulk extraction: convert raw API commit dicts into CommitModel instances.
         commits = []
         for c in raw_commits:
             if isinstance(c, dict) and c.get("sha"):
@@ -53,12 +53,12 @@ class CommitModel:
 
     @staticmethod
     def extract_dates(commits: List["CommitModel"]) -> List[datetime]:
-        "Extract parsed dates from a list of commits (filtering None values)."
+        #Extract parsed dates from a list of commits (filtering None values)
         return [c.parsed_date for c in commits if c.parsed_date is not None]
 
     @staticmethod
     def extract_unique_authors(commits: List["CommitModel"]) -> List[str]:
-        "Get distinct author logins from a list of commits."
+        #Get distinct author logins from a list of commits.
         authors = set()
         for c in commits:
             if c.author_login:

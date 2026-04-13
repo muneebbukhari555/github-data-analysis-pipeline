@@ -20,6 +20,7 @@ class PipelineOrchestrator:
         self.contributor_collector = ContributorCollector(self.settings)
         self.repo_store = RepositoryStore(self.settings)
         self.snapshot_store = SnapshotStore(self.settings)
+        self.feature_engineer = FeatureEngineer(self.settings)
       
     def run_collection(self, repos: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         target_repos = repos or self.settings.target_repos
@@ -50,7 +51,7 @@ class PipelineOrchestrator:
         return dataset
     
     def run_storage(self, dataset: List[Dict[str, Any]]) -> None:
-        "Store collected data in MongoDB and save time-series snapshot"
+        #Store collected data in MongoDB and save time-series snapshot
         self.logger.info("Storing %d repository records", len(dataset))
         self.repo_store.insert_many(dataset)
         self.snapshot_store.save_snapshot(dataset)
@@ -78,6 +79,10 @@ class PipelineOrchestrator:
         results = {
             "df": df,
             "score_summary": score_summary,
+            "dimension_leaders": dimension_leaders,
+            "commit_timeline": commit_timeline,
+            "top_contributors": top_contributors,
+            "top_committers": top_committers,
         }
         self.logger.info("Analysis pipeline complete")
         return results
