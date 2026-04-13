@@ -12,31 +12,6 @@ df = load_data()
 print("Data loaded from MongoDB")
 # print(df.head())
 
-# Extract features from commit lists
-df["commit_count"] = df["recent_commits"].apply(len)
-
-def extract_commit_dates(commits):
-    dates = []
-    for c in commits:
-        try:
-            dates.append(c["commit"]["author"]["date"])
-        except:
-            continue
-    return dates
-df["commit_dates"] = df["recent_commits"].apply(extract_commit_dates)
-
-def compute_commit_frequency(dates):
-    if len(dates) < 2:
-        return 0
-    dates = pd.to_datetime(dates)
-    days = (max(dates) - min(dates)).days
-    return len(dates) / (days if days > 0 else 1)
-df["commit_frequency"] = df["commit_dates"].apply(compute_commit_frequency)
-
-# print(df["commit_count"])
-# print(df["commit_dates"])
-
-)
 df["success_score"] = (
     df["stars"] * 0.5 +
     df["forks"] * 0.3 +
