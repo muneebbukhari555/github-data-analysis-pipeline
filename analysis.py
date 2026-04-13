@@ -12,13 +12,6 @@ df = load_data()
 print("Data loaded from MongoDB")
 # print(df.head())
 
-df["success_score"] = (
-    df["stars"] * 0.5 +
-    df["forks"] * 0.3 +
-    df["contributors_count"] * 0.2
-)
-df["engagement_ratio"] = df["forks"] / df["stars"].replace(0,1)
-df["contribution_efficiency"] = df["total_contributions"] / df["contributors_count"].replace(0,1)
 
 #### Repo Analysis
 # repository growth rate
@@ -31,10 +24,6 @@ df["language"] = df["language"].fillna("Unknown")
 lang = df.groupby("language")["stars"].mean().sort_values(ascending=False)
 print("Average Stars per Language:")
 print(lang)
-
-# commit frequency
-print("\nCommit Frequency Leaders:")
-print(df.sort_values("commit_frequency", ascending=False)[["name", "commit_frequency"]])
 
 # most successful repositories
 print("\nTop Successful Repositories:")
@@ -74,20 +63,6 @@ top_committers = Counter(all_commit_users).most_common(10)
 print("\nTop Committers Across Repositories:")
 print(top_committers)
 
-#Use commit author metadata
-def extract_commit_authors(commits):
-    users = []
-    for c in commits:
-        try:
-            users.append(c["commit"]["author"]["name"])
-        except:
-            continue
-    return users
-df["commit_authors"] = df["recent_commits"].apply(extract_commit_authors)
-all_users = []
-for users in df["commit_authors"]:
-    all_users.extend(users)
-print(Counter(all_users).most_common(10))
 
 # Most Dominant Contributor Per Repo
 def top_contributor(contributors):

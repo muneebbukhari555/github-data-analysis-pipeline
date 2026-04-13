@@ -9,6 +9,8 @@ from collectors.contributor_collector import ContributorCollector
 from database.repository_store import RepositoryStore
 from database.snapshot_store import SnapshotStore
 from analysis.feature_engineering import FeatureEngineer
+from analysis.scoring import RepositoryScorer
+from analysis.time_series import TimeSeriesAnalyzer
 
 class PipelineOrchestrator:
     def __init__(self, settings: Optional[Settings] = None):
@@ -73,6 +75,15 @@ class PipelineOrchestrator:
         # Multi dimensional Scoring
         df = self.scorer.compute_all_scores(df)
 
+        # Stage 5a: Time-Series Analysis
+        commit_timeline = self.time_series_analyzer.analyze_commit_timeline(df)
+        df = self.time_series_analyzer.compute_commit_velocity(df)
+
+        # Stage 5b: Contributor Analysis
+        top_contributors = self.contributor_analyzer.analyze_top_contributors(df)
+        top_committers = self.contributor_analyzer.analyze_top_committers(df)
+        influence_scores = self.contributor_analyzer.compute_developer_influence_scores(df)
+
         # Score summary and leaders
         score_summary = self.scorer.get_score_summary(df)
         
@@ -83,6 +94,8 @@ class PipelineOrchestrator:
             "commit_timeline": commit_timeline,
             "top_contributors": top_contributors,
             "top_committers": top_committers,
+            "developer_influence": influence_scores,
         }
         self.logger.info("Analysis pipeline complete")
         return results
+    
