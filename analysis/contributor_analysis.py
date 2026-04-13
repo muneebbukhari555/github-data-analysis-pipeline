@@ -4,11 +4,6 @@ from collections import Counter
 from config.settings import Settings
 
 class ContributorAnalyzer:
-    # Grading thresholds
-    GRADE_THRESHOLDS = {
-        "A+": 90, "A": 80, "B+": 70, "B": 60,
-        "C+": 50, "C": 40, "D": 30, "F": 0,
-    }
     def __init__(self, settings: Optional[Settings] = None):
         self.settings = settings or Settings()
         self.logger = self.settings.get_logger("ContributorAnalyzer")
