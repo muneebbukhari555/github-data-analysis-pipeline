@@ -12,6 +12,8 @@ from analysis.feature_engineering import FeatureEngineer
 from analysis.scoring import RepositoryScorer
 from analysis.time_series import TimeSeriesAnalyzer
 from analysis.contributor_analysis import ContributorAnalyzer
+from analysis.contributor_analysis import ContributorAnalyzer
+from analysis.community_analysis import CommunityAnalyzer
 
 class PipelineOrchestrator:
     def __init__(self, settings: Optional[Settings] = None):
@@ -24,10 +26,10 @@ class PipelineOrchestrator:
         self.repo_store = RepositoryStore(self.settings)
         self.snapshot_store = SnapshotStore(self.settings)
         self.feature_engineer = FeatureEngineer(self.settings)
-        self.feature_engineer = FeatureEngineer(self.settings)
         self.scorer = RepositoryScorer(self.settings)
         self.time_series_analyzer = TimeSeriesAnalyzer(self.settings)
         self.contributor_analyzer = ContributorAnalyzer(self.settings)
+        self.community_analyzer = CommunityAnalyzer(self.settings)
       
     def run_collection(self, repos: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         target_repos = repos or self.settings.target_repos
@@ -91,6 +93,11 @@ class PipelineOrchestrator:
         dominance = self.contributor_analyzer.compute_contributor_dominance(df)
         influence_scores = self.contributor_analyzer.compute_developer_influence_scores(df)
 
+        # Community Analysis
+        df = self.community_analyzer.analyze_community(df)
+        community_summary = self.community_analyzer.get_community_summary(df)
+        community_insights = self.community_analyzer.get_community_insights(df)
+
         # Historical Trends (from snapshots)
         snapshots = self.snapshot_store.get_all_history()
         trends = self.time_series_analyzer.analyze_snapshot_trends(snapshots)
@@ -112,9 +119,12 @@ class PipelineOrchestrator:
             "cross_repo_contributors": cross_repo,
             "contributor_dominance": dominance,
             "developer_influence": influence_scores,
+            "community_summary": community_summary,
+            "community_insights": community_insights,
             "historical_trends": trends,
             "heatmap_data": heatmap_data,
         }
         self.logger.info("Analysis pipeline complete")
         return results
+    
     

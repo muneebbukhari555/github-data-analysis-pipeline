@@ -94,4 +94,78 @@ class ContributorAnalyzer:
         self.logger.info("Found %d cross-repo contributors", len(result))
         return result
 
+    def compute_contributor_dominance(self, df: pd.DataFrame) -> pd.DataFrame:
+        records = []
+        for _, row in df.iterrows():
+            contributors = row.get("contributors", [])
+            if not isinstance(contributors, list) or not contributors:
+                continue
+            total = sum(c.get("contributions", 0) for c in contributors)
+            if total == 0:
+                continue
+            sorted_contribs = sorted(
+                contributors, key=lambda x: x.get("contributions", 0), reverse=True
+            )
+            top1 = sorted_contribs[0]
+            top1_share = top1.get("contributions", 0) / total
+            # Top 5 share
+            top5_total = sum(c.get("contributions", 0) for c in sorted_contribs[:5])
+            top5_share = top5_total / total
+            records.append({
+                "name": row["name"],
+                "top_contributor": top1.get("login", "N/A"),
+                "top1_contribution_share": round(top1_share, 4),
+                "top5_contribution_share": round(top5_share, 4),
+                "total_contributors": len(contributors),
+                "dominance_level": (
+                    "high" if top1_share > 0.5
+                    else "medium" if top1_share > 0.25
+                    else "low"
+                ),
+            })
+        result = pd.DataFrame(records)
+        self.logger.info("Computed dominance metrics for %d repos", len(result))
+        return result
+
+    def compute_developer_influence_scores(self, df: pd.DataFrame) -> pd.DataFrame:
+        contributor_data = {}
+        for _, row in df.iterrows():
+            contributors = row.get("contributors", [])
+            if not isinstance(contributors, list):
+                continue
+            repo_total = sum(c.get("contributions", 0) for c in contributors)
+            for c in contributors:
+                login = c.get("login")
+                if not login:
+                    continue
+                contribs = c.get("contributions", 0)
+                if login not in contributor_data:
+                    contributor_data[login] = {
+                        "login": login,
+                        "total_contributions": 0,
+                        "repo_count": 0,
+                        "max_share_in_repo": 0.0,
+                    }
+                contributor_data[login]["total_contributions"] += contribs
+                contributor_data[login]["repo_count"] += 1
+                if repo_total > 0:
+                    share = contribs / repo_total
+                    contributor_data[login]["max_share_in_repo"] = max(
+                        contributor_data[login]["max_share_in_repo"], share
+                    )
+        records = list(contributor_data.values())
+        result = pd.DataFrame(records)
+        if result.empty:
+            return result
+        result["volume_score"] = result["total_contributions"].rank(pct=True)
+        result["diversity_score"] = result["repo_count"].rank(pct=True)
+        result["concentration_score"] = result["max_share_in_repo"].rank(pct=True)
+        result["influence_score"] = (
+            result["volume_score"] * 0.4 +
+            result["diversity_score"] * 0.35 +
+            result["concentration_score"] * 0.25
+        ).round(4)
+        result = result.sort_values("influence_score", ascending=False).reset_index(drop=True)
+        self.logger.info("Computed influence scores for %d developers", len(result))
+        return result
     
