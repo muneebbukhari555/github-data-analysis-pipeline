@@ -1,28 +1,24 @@
-name: Run GitHub Data Pipeline
+name: Scheduled Data Collection
 
 on:
   schedule:
-    - cron: "0 0 * * *"   # runs daily
+    # Run every 6 hours: midnight, 6am, noon, 6pm UTC
+    - cron: "0 */6 * * *"
   workflow_dispatch:
 
 jobs:
-  run-script:
+  collect:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Trigger data collection on Azure VM
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          python-version: "3.10"
-
-      - name: Install dependencies
-        run: pip install pandas matplotlib requests pymongo
-
-      - name: Run script
-        env:
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: python main.py
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          script: |
+            cd ~/github-pipeline-analysis
+            # Spin up collector container, run pipeline, then exit
+            # MongoDB container is already running and reachable via Docker network
+            docker compose --profile collect run --rm collector
+            echo "Data collection completed at $(date)"
