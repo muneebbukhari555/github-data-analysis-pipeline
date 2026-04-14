@@ -43,4 +43,42 @@ jobs:
             ${{ env.DOCKER_IMAGE }}:latest
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
 
-  
+  APP-Deploy-On-Azure-VM:
+    runs-on: ubuntu-latest
+    needs: Docker-Build-And-Push
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy docker-compose to Azure VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "~/github-pipeline-analysis/"
+
+      - name: Deploy on Azure VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          script: |
+            cd ~/github-pipeline-analysis
+            cat > .env << 'ENVEOF'
+            GITHUB_TOKEN=${{ secrets.GIT_TOKEN }}
+            MONGO_URI=${{ secrets.MONGO_URI }}
+            MONGO_DB=github_pipeline_analysis
+            LOG_LEVEL=INFO
+            MAX_API_PAGES=5
+            ENVEOF
+
+            # Pull latest image and restart MongoDB + Dashboard containers
+            docker compose pull dashboard
+            docker compose up -d mongodb dashboard
+
+            # Run one initial data collection on fresh deploy
+            docker compose --profile collect run --rm collector
+
+            echo "Deployment complete at $(date)"
