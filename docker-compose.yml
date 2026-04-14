@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: github_analysis_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: github_analysis_dashboard
+    restart: always
+    ports:
+      - "8501:8501"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB:-github_pipeline_analysis}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: github_analysis_collector
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB:-github_pipeline_analysis}
+      - MAX_API_PAGES=${MAX_API_PAGES:-5}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    entrypoint: ["python", "main.py", "--mode", "collect"]
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    profiles:
+      - collect
+
+volumes:
+  mongo_data:
+    driver: local
