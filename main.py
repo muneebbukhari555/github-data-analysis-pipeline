@@ -65,7 +65,32 @@ def _print_summary(results: dict, logger):
         logger.info("\nRepository Scores (ranked by overall):")
         print(score_summary.to_string(index=False))
 
+    # Dimension leaders
+    leaders = results.get("dimension_leaders", {})
+    if leaders:
+        logger.info("\nDimension Leaders:")
+        for dim, repo in leaders.items():
+            logger.info("  %s: %s", dim, repo)
+
+    # Community grades
+    community = results.get("community_summary")
+    if community is not None and not community.empty:
+        logger.info("\nCommunity Health Grades:")
+        print(community[["name", "community_grade", "community_total_score"]].to_string(index=False))
+
+    # Community insights
+    insights = results.get("community_insights", [])
+    if insights:
+        logger.info("\nCommunity Insights:")
+        for insight in insights:
+            logger.info("  [%s] %s", insight["type"].upper(), insight["message"])
+
+    # Top contributors
+    top_contribs = results.get("top_contributors")
+    if top_contribs is not None and not top_contribs.empty:
+        logger.info("\nTop 10 Contributors:")
+        print(top_contribs.head(10)[["login", "total_contributions", "repo_count"]].to_string(index=False))
     logger.info("\n" + "=" * 60)
-    
+
 if __name__ == "__main__":
     main()
