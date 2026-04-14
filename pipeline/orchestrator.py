@@ -127,4 +127,18 @@ class PipelineOrchestrator:
         self.logger.info("Analysis pipeline complete")
         return results
     
-    
+    def run_full_pipeline(self, repos: Optional[List[str]] = None) -> Dict[str, Any]:
+        #Execute the complete pipeline end-to-end: collection, storage, and analysis
+        self.logger.info("=== Starting Full Pipeline ===")
+        # Collect and Store
+        dataset = self.run_collection(repos)
+        if dataset:
+            self.run_storage(dataset)
+        # Analyze
+        results = self.run_analysis()
+        self.logger.info("=== Full Pipeline Complete ===")
+        return results
+
+    def run_analysis_only(self) -> Dict[str, Any]:
+        #Run only the analysis stages
+        return self.run_analysis()
