@@ -8,28 +8,7 @@
 
 ---
 
-## Dockerfile
 
-### What AI Helped With
-AI wrote the multi-stage-friendly Dockerfile using `python:3.11-slim` as the base
-image and installing dependencies from `requirements.txt` before copying application
-code (so Docker layer caching works efficiently):
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-CMD ["streamlit", "run", "dashboard/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
-```
-The `--server.address=0.0.0.0` flag is important — without it Streamlit only listens
-on localhost inside the container and the port mapping does not work.
-
-**My decision:** I chose `python:3.11-slim` over the full Python image to keep the
-image smaller (faster pulls on the Azure VM). AI implemented this after I asked for a
-lightweight base.
-
----
 
 ## docker-compose.yml
 
