@@ -15,9 +15,7 @@ services:
       timeout: 5s
       retries: 5
   dashboard:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: muneebbukhari555/github-pipeline-analysis:latest
     container_name: github_analysis_dashboard
     restart: always
     ports:
@@ -30,10 +28,9 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
+
   collector:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: muneebbukhari555/github-pipeline-analysis:latest
     container_name: github_analysis_collector
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
